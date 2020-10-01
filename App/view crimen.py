@@ -23,9 +23,7 @@
 import sys
 import config
 from DISClib.ADT import list as lt
-from DISClib.DataStructures import listiterator as it
 from App import controller
-from time import process_time
 assert config
 
 """
@@ -40,8 +38,7 @@ operación seleccionada.
 # ___________________________________________________
 
 
-accidentsFile = 'US_Accidents_Dec19.csv'
-#accidentsFile = 'prueba.csv'
+crimefile = 'crime-utf8.csv'
 
 # ___________________________________________________
 #  Menu principal
@@ -53,9 +50,9 @@ def printMenu():
     print("*******************************************")
     print("Bienvenido")
     print("1- Inicializar Analizador")
-    print("2- Cargar información de accidentes")
-    print("3- Requerimento 1")
-    print("4- Requerimento 2")
+    print("2- Cargar información de crimenes")
+    print("3- Consultar crimenes en un rango de fechas")
+    print("4- Consultar crimenes por codigo y fecha")
     print("0- Salir")
     print("*******************************************")
 
@@ -65,7 +62,7 @@ Menu principal
 """
 while True:
     printMenu()
-    inputs = input('Seleccione una opción para continuar\n')
+    inputs = input('Seleccione una opción para continuar\n>')
 
     if int(inputs[0]) == 1:
         print("\nInicializando....")
@@ -74,31 +71,28 @@ while True:
 
     elif int(inputs[0]) == 2:
         print("\nCargando información de crimenes ....")
-        t1 = process_time()
-        controller.loadData(cont, accidentsFile)
-        print("Elementos cargados\n", lt.size(cont["accident"]))
-        altura = controller.altura(cont["date"])
-        datos = controller.indexSize(cont["date"])
-        t2 = process_time()
-        print("Altura del arbol\n", altura)
-        print("Elmentos cargados\n", datos)
-        t = t2-t1
-        print("Tiempo requerido: ", t)
+        controller.loadData(cont, crimefile)
+        print('Crimenes cargados: ' + str(controller.crimesSize(cont)))
+        print('Altura del arbol: ' + str(controller.indexHeight(cont)))
+        print('Elementos en el arbol: ' + str(controller.indexSize(cont)))
+        print('Menor Llave: ' + str(controller.minKey(cont)))
+        print('Mayor Llave: ' + str(controller.maxKey(cont)))
 
     elif int(inputs[0]) == 3:
-        print("\nBuscando los accidentes de una fecha: ")
-        
-        fecha = input("Digite la fecha a buscar de la forma AAAA-MM-DD: ")
-        lst = controller.accidentesFecha(cont, fecha)
-        itera = it.newIterator(lst)
-        while it.hasNext(itera):
-            value = it.next(itera)
-            print("Tipo de severidad :", value["severidad"], "Numero de accidentes: ", lt.size(value["lst_id"]))
-        
-
+        print("\nBuscando crimenes en un rango de fechas: ")
+        initialDate = input("Rango Inicial (YYYY-MM-DD): ")
+        finalDate = input("Rango Inicial (YYYY-MM-DD): ")
+        lst = controller.getCrimesByRange(cont, initialDate, finalDate)
+        print("\nTotal de llaves en el rango: " + str(lt.size(lst)))
 
     elif int(inputs[0]) == 4:
-        print("\nRequerimiento No 1 del reto 3: ")
+        print("\nBuscando crimenes x grupo de ofensa en una fecha: ")
+        initialDate = input("Fecha (YYYY-MM-DD): ")
+        offensecode = input("Codigo de ofensa: ")
+        numoffenses = controller.getCrimesByRangeCode(cont, initialDate,
+                                                      offensecode)
+        print("\nTotal de ofensas tipo: " + offensecode + " en esa fecha:  " +
+              str(numoffenses))
 
     else:
         sys.exit(0)
