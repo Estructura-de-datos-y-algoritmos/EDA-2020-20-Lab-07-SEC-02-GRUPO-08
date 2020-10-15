@@ -42,6 +42,7 @@ operación seleccionada.
 
 accidentsFile = 'US_Accidents_Dec19.csv'
 #accidentsFile = 'prueba.csv'
+#accidentsFile = 'us_accidents_dis_2016.csv'
 
 # ___________________________________________________
 #  Menu principal
