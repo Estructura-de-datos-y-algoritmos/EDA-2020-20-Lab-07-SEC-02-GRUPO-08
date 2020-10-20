@@ -68,6 +68,17 @@ def accidentesFecha(analyzer, fecha):
     fecha = datetime.datetime.strptime(fecha, '%Y-%m-%d')
     return model.accidentesFecha(analyzer, fecha.date())
 
+
+def A_antesFecha(analyzer, fecha):
+    fecha = datetime.datetime.strptime(fecha, '%Y-%m-%d')
+    return model.A_antesFecha(analyzer, fecha.date())
+
+
+def accidentesRango(analyzer, fecha1, fecha2):
+    fecha1 = datetime.datetime.strptime(fecha1, '%Y-%m-%d')
+    fecha2 = datetime.datetime.strptime(fecha2, '%Y-%m-%d')
+    return model.accidentesRango(analyzer, fecha1.date(), fecha2.date())
+
 # ___________________________________________________
 #  Funciones para consultas
 # ___________________________________________________

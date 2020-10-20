@@ -40,8 +40,8 @@ operación seleccionada.
 # ___________________________________________________
 
 
-accidentsFile = 'US_Accidents_Dec19.csv'
-#accidentsFile = 'prueba.csv'
+#accidentsFile = 'US_Accidents_Dec19.csv'
+accidentsFile = 'prueba.csv'
 #accidentsFile = 'us_accidents_dis_2016.csv'
 
 # ___________________________________________________
@@ -55,8 +55,9 @@ def printMenu():
     print("Bienvenido")
     print("1- Inicializar Analizador")
     print("2- Cargar información de accidentes")
-    print("3- Requerimento 1")
-    print("4- Requerimento 2")
+    print("3- Requerimiento 1")
+    print("4- Requerimiento 2")
+    print("5- Requerimiento 3")
     print("0- Salir")
     print("*******************************************")
 
@@ -99,7 +100,21 @@ while True:
 
 
     elif int(inputs[0]) == 4:
-        print("\nRequerimiento No 1 del reto 3: ")
+        print("\nBuscando accidentes anteriores a una fecha: ")
+
+        fecha = input("Digite la fecha a buscar de la forma AAAA-MM-DD: ")      #LE FALTA 
+        rank = controller.A_antesFecha(cont, fecha)
+        print("El total de accidentes reportados antes de ", fecha, "son", rank)
+
+
+    elif int(inputs[0]) == 5:
+        print("\nBuscando accidentes en un rango de fechas: ")
+
+        fecha1 = input("Digite el rango inferior a buscar de la forma AAAA-MM-DD: ")
+        fecha2 = input("Digite el rango superior a buscar de la forma AAAA-MM-DD: ")
+        
+        keys = controller.accidentesRango(cont, fecha1, fecha2)
+        print("El total de accidentes reportados entre ", fecha1, "y", fecha2, "son ", keys)
 
     else:
         sys.exit(0)

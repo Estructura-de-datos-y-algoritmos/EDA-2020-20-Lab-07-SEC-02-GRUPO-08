@@ -21,6 +21,7 @@
  """
 import config
 from DISClib.ADT import list as lt
+from DISClib.DataStructures import listiterator as it
 from DISClib.ADT import orderedmap as om
 from DISClib.DataStructures import mapentry as me
 from DISClib.ADT import map as m
@@ -122,7 +123,44 @@ def accidentesFecha(analyzer, fecha):
     return lis
         
 
-    
+def A_antesFecha(analyzer, fecha):
+    kmin = om.minKey(analyzer["date"])
+    #ll = om.keys(analyzer["date"], kmin, fecha)
+    valor = om.values(analyzer["date"], kmin, fecha)
+    itera = it.newIterator(valor)
+    accidente = 0
+    numeroA = 0
+    while it.hasNext(itera):
+        llave = it.next(itera)
+        ll = om.get(analyzer["date"], llave)
+        valores = me.getValue(ll)
+        accidente += lt.size(valores["list"])
+        #print(lt.size(valores["list"]), llave)
+        if numeroA <= lt.size(valores["list"]):
+            numeroA = lt.size(valores["list"])
+            date = llave
+    print("La fecha con más accidentes es: ", date, "con ", numeroA)
+
+    return accidente
+
+
+def accidentesRango(analyzer, fecha1, fecha2):
+    values = om.values(analyzer["date"], fecha1, fecha2)
+    itera = it.newIterator(values)
+    accidente = 0
+    categoria = 0
+    while it.hasNext(itera):
+        llave = it.next(itera)
+        llv = om.get(analyzer["date"], llave)
+        va = me.getValue(llv)
+        accidente += lt.size(va["list"])
+        lista = m.valueSet(va["severidad"])
+     #   if categoria <= lt.size(va["severidad"]):
+      #      categoria = lt.size(va["severidad"])
+       #     print(va["severidad"], lt.size(va["severidad"]))
+    print(categoria)
+
+    return accidente
     
 
 # ==============================
