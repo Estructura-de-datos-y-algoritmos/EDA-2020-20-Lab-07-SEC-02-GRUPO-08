@@ -105,7 +105,7 @@ def updateValue(valor, accident):
         m.put(valor["severidad"], accident["Severity"], dicci)
     else:
         valor1 = me.getValue(entra)
-        lt.addLast(valor1['lst_id'], accident['Severity'])
+        lt.addLast(valor1['lst_id'], accident['ID'])
     return valor
         
 
@@ -123,19 +123,21 @@ def accidentesFecha(analyzer, fecha):
     return lis
         
 
+
 def A_antesFecha(analyzer, fecha):
     kmin = om.minKey(analyzer["date"])
-    #ll = om.keys(analyzer["date"], kmin, fecha)
-    valor = om.values(analyzer["date"], kmin, fecha)
-    itera = it.newIterator(valor)
+    keys = om.keys(analyzer["date"], kmin, fecha)
+    itera = it.newIterator(keys)
     accidente = 0
     numeroA = 0
+    
     while it.hasNext(itera):
         llave = it.next(itera)
         ll = om.get(analyzer["date"], llave)
+
         valores = me.getValue(ll)
+        
         accidente += lt.size(valores["list"])
-        #print(lt.size(valores["list"]), llave)
         if numeroA <= lt.size(valores["list"]):
             numeroA = lt.size(valores["list"])
             date = llave
@@ -145,22 +147,28 @@ def A_antesFecha(analyzer, fecha):
 
 
 def accidentesRango(analyzer, fecha1, fecha2):
-    values = om.values(analyzer["date"], fecha1, fecha2)
-    itera = it.newIterator(values)
+    llaves = om.keys(analyzer["date"], fecha1, fecha2)
+    itera = it.newIterator(llaves)
     accidente = 0
-    categoria = 0
+    server ={}
+
     while it.hasNext(itera):
         llave = it.next(itera)
         llv = om.get(analyzer["date"], llave)
         va = me.getValue(llv)
         accidente += lt.size(va["list"])
-        lista = m.valueSet(va["severidad"])
-     #   if categoria <= lt.size(va["severidad"]):
-      #      categoria = lt.size(va["severidad"])
-       #     print(va["severidad"], lt.size(va["severidad"]))
-    print(categoria)
+        valor_mapa = m.valueSet(va["severidad"])
 
-    return accidente
+        itera1 = it.newIterator(valor_mapa)
+        while it.hasNext(itera1):
+            valor_m = it.next(itera1)
+            id_severidad = valor_m["severidad"]
+            if id_severidad not in server.keys():
+                server[id_severidad] = lt.size(valor_m["lst_id"])
+            else:
+                server[id_severidad] += lt.size(valor_m["lst_id"])
+
+    return accidente, server
     
 
 # ==============================
@@ -178,7 +186,7 @@ def compareIds(id1, id2):
 
 
 def compareDates(date1, date2):
-    
+
     if (date1 == date2):
         return 0
     elif (date1 > date2):

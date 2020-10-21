@@ -113,8 +113,14 @@ while True:
         fecha1 = input("Digite el rango inferior a buscar de la forma AAAA-MM-DD: ")
         fecha2 = input("Digite el rango superior a buscar de la forma AAAA-MM-DD: ")
         
-        keys = controller.accidentesRango(cont, fecha1, fecha2)
-        print("El total de accidentes reportados entre ", fecha1, "y", fecha2, "son ", keys)
+        accidente, server = controller.accidentesRango(cont, fecha1, fecha2)
+        print("El total de accidentes reportados entre ", fecha1, "y", fecha2, "son ", accidente)
+        maximo_val = 0
+        for k in server:
+            if maximo_val < server[k]:
+                maximo_val = server[k]
+                categoriaa = k
+        print("La categoria con más accidentes reportados es la ", categoriaa, "con ", maximo_val)
 
     else:
         sys.exit(0)
