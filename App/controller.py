@@ -79,6 +79,20 @@ def accidentesRango(analyzer, fecha1, fecha2):
     fecha2 = datetime.datetime.strptime(fecha2, '%Y-%m-%d')
     return model.accidentesRango(analyzer, fecha1.date(), fecha2.date())
 
+
+def accidentesRango1(analyzer, fecha1, fecha2):
+    fecha1 = datetime.datetime.strptime(fecha1, '%Y-%m-%d')
+    fecha2 = datetime.datetime.strptime(fecha2, '%Y-%m-%d')
+    return model.accidentesRango1(analyzer, fecha1.date(), fecha2.date())
+
+
+def aproximar(fechaa):
+    return model.aproximar(fechaa)
+
+
+def horasRango(analyzer, hora1, hora2):
+    return model.horasRango(analyzer, hora1, hora2)
+
 # ___________________________________________________
 #  Funciones para consultas
 # ___________________________________________________

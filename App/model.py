@@ -46,7 +46,9 @@ def newAnalyzer():
 
     analyzer['accident'] = lt.newList('SINGLE_LINKED', compareIds)
     analyzer['date'] = om.newMap(omaptype='RBT',
-                                      comparefunction=compareDates)
+                                    comparefunction=compareDates)
+    analyzer['hour'] = om.newMap(omaptype='RBT',
+                                    comparefunction= compareHours)
 
     return analyzer
 
@@ -61,6 +63,7 @@ def addAccident(analyzer, accident):
 
     lt.addLast(analyzer["accident"], accident["ID"])
     updateDate(analyzer['date'], accident)
+    updateHour(analyzer['hour'], accident)
     
     return analyzer
 
@@ -79,8 +82,59 @@ def updateDate(map, accident):
     updateValue(valor, accident)
 
 
+def updateHour(map, accident):
+
+    fecha = accident["Start_Time"]
+    hora = aproximar(fecha)
+    ya = om.get(map, hora)
+    if ya is None:
+        valorr = NewEntry1(accident)
+        om.put(map, hora, valorr)
+    else:
+        valorr = me.getValue(ya)
+    updateValue1(valorr, accident)
+
+
+def aproximar(fecha):
+    
+    fecha = fecha[0:17] +'00'
+    fecha = datetime.datetime.strptime(fecha, '%Y-%m-%d %H:%M:%S')
+    horas = fecha.time()
+    minutos = horas.minute
+    if minutos > 30:
+        minutos = 60-minutos
+        horas = (fecha + datetime.timedelta(minutes= minutos)).time()
+        horas = str(horas)[0:2] +'00'
+    elif minutos < 15:
+        horas = str(horas)[0:2] + '00'
+    else:
+        horas = str(horas)[0:2] + '30'
+    horas = int(horas)
+
+    return horas
+    
+    
+
+
 def NewEntry(accident):
     
+    entry = {'list': None,
+             'severidad': None}
+    entry['list'] = lt.newList('ARRAY_LIST', compareIds)
+    entry['severidad'] = m.newMap(30, 
+                                    maptype='PROBING', 
+                                    loadfactor=0.5,
+                                    comparefunction= compareSeveridad)
+    entry['estado'] = m.newMap(30, 
+                                maptype='PROBING', 
+                                loadfactor=0.5,
+                                comparefunction= compareEstate)
+    return entry
+
+
+
+def NewEntry1(accident):
+
     entry = {'list': None,
              'severidad': None}
     entry['list'] = lt.newList('ARRAY_LIST', compareIds)
@@ -91,11 +145,12 @@ def NewEntry(accident):
     return entry
 
 
-def updateValue(valor, accident):
-
+def updateValue1(valor, accident):
+    
     lista = valor["list"]
     lt.addLast(lista, accident["ID"])
     entra = m.get(valor["severidad"], accident["Severity"])
+
     if entra is None:
         lista2 = lt.newList('ARRAY_LIST')
         dicci = {}
@@ -106,6 +161,39 @@ def updateValue(valor, accident):
     else:
         valor1 = me.getValue(entra)
         lt.addLast(valor1['lst_id'], accident['ID'])
+    
+    return valor
+
+
+
+def updateValue(valor, accident):
+
+    lista = valor["list"]
+    lt.addLast(lista, accident["ID"])
+    entra = m.get(valor["severidad"], accident["Severity"])
+    estado = m.get(valor["estado"], accident["State"])
+    if entra is None:
+        lista2 = lt.newList('ARRAY_LIST')
+        dicci = {}
+        dicci['severidad'] = accident["Severity"]
+        lt.addLast(lista2, accident["ID"])
+        dicci['lst_id'] = lista2
+        m.put(valor["severidad"], accident["Severity"], dicci)
+    else:
+        valor1 = me.getValue(entra)
+        lt.addLast(valor1['lst_id'], accident['ID'])
+
+    if estado is None:
+        lista3 = lt.newList('ARRAY_LIST')
+        diccit = {}
+        diccit['estado'] = accident["State"]
+        lt.addLast(lista3, accident["ID"])
+        diccit['lst_estado'] = lista3
+        m.put(valor["estado"], accident["State"], diccit)
+    else:
+        valor2 = me.getValue(estado)
+        lt.addLast(valor2['lst_estado'], accident['ID'])
+
     return valor
         
 
@@ -169,7 +257,59 @@ def accidentesRango(analyzer, fecha1, fecha2):
                 server[id_severidad] += lt.size(valor_m["lst_id"])
 
     return accidente, server
+
+
+def accidentesRango1(analyzer, fecha1, fecha2):
+    llaves = om.keys(analyzer["date"], fecha1, fecha2)
+    itera = it.newIterator(llaves)
+    accidente1 = 0
+    server2 ={}
+
+    while it.hasNext(itera):
+        llave = it.next(itera)
+        llv = om.get(analyzer["date"], llave)
+        va = me.getValue(llv)
+        accidente1 += lt.size(va["list"])
+        valor_mapa = m.valueSet(va["estado"])
+
+        itera1 = it.newIterator(valor_mapa)
+        while it.hasNext(itera1):
+            valor_m = it.next(itera1)
+            id_severidad = valor_m["estado"]
+            if id_severidad not in server2.keys():
+                server2[id_severidad] = lt.size(valor_m["lst_estado"])
+            else:
+                server2[id_severidad] += lt.size(valor_m["lst_estado"])
+
+    return accidente1, server2
     
+
+def horasRango(analyzer, hora1, hora2):
+    
+    llav = om.keys(analyzer['hour'], hora1, hora2) 
+    itera = it.newIterator(llav)
+    accidente1 = 0
+    server2 ={}
+
+    while it.hasNext(itera):
+        llave = it.next(itera)
+        llv = om.get(analyzer["hour"], llave)
+        va = me.getValue(llv)
+        accidente1 += lt.size(va["list"])
+        valor_mapa = m.valueSet(va["severidad"])
+
+        itera1 = it.newIterator(valor_mapa)
+        while it.hasNext(itera1):
+            valor_m = it.next(itera1)
+            id_severidad = valor_m["severidad"]
+            if id_severidad not in server2.keys():
+                server2[id_severidad] = lt.size(valor_m["lst_id"])
+            else:
+                server2[id_severidad] += lt.size(valor_m["lst_id"])
+
+    return accidente1, server2
+
+
 
 # ==============================
 # Funciones de Comparacion
@@ -180,6 +320,16 @@ def compareIds(id1, id2):
     if (id1 == id2):
         return 0
     elif id1 > id2:
+        return 1
+    else:
+        return -1
+
+
+def compareHours(h1, h2):
+    
+    if (h1 == h2):
+        return 0
+    elif h1 > h2:
         return 1
     else:
         return -1
@@ -200,3 +350,8 @@ def compareSeveridad(s1, s2):
     if (s1 == me.getKey(s2)):
         return 0
     return 1 
+
+def compareEstate(e1, e2):
+    if e1 == me.getKey(e2):
+        return 0
+    return 1
